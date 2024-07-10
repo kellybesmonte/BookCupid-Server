@@ -18,7 +18,7 @@ export const up = function(knex) {
 /**
  * 
  * 
- * @param { import("knex").Knex } knex - Knex instance for executing SQL queries.
+ * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export const down = function(knex) {
