@@ -15,7 +15,7 @@ async function initializeDatabase() {
             host: process.env.DB_HOST,
             user: process.env.DB_LOCAL_USER,
             password: process.env.DB_LOCAL_PASSWORD,
-            database: 3306
+            database: process.env.DB_LOCAL_NAME
         });
 
         console.log('Connected to the database');
@@ -45,12 +45,14 @@ app.get('/books/:id', (req, res) => {
     const id = req.params.id;
     db.query('SELECT * FROM books WHERE id = ?', [id], (err, results) => {
         if (err) {
-            res.status(500).send(err);
+            console.error('Error querying database:', err);
+            res.status(500).send(err.message);
         } else {
             res.json(results);
         }
     });
 });
+
 
 
 //GET ALL QUOTES 
