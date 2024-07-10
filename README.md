@@ -4,7 +4,8 @@ This is the backend server to my project, Book Cupid, https://github.com/kellybe
 
 
 ## Commands to run 
-npm init or npm init -y
-npm install knex mysql2 dotenv
-npx knex migrate:latest
-npx knex seed:run 
+
+### npm init or npm init -y
+### npm install knex mysql2 dotenv
+### npx knex migrate:latest
+### npx knex seed:run 
