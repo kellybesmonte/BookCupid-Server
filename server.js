@@ -15,7 +15,7 @@ async function initializeDatabase() {
             host: process.env.DB_HOST,
             user: process.env.DB_LOCAL_USER,
             password: process.env.DB_LOCAL_PASSWORD,
-            database: process.env.DB_LOCAL_NAME
+            database: 3306
         });
 
         console.log('Connected to the database');
