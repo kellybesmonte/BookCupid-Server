@@ -35,39 +35,6 @@ app.get('/', (req, res) => {
     res.send('Book Cupid');
 });
 
-// GET GENRES
-// app.get('/genres', (req, res) => {
-//     if (!db) {
-//         res.status(500).send('Database connection not established');
-//         return;
-//     }
-
-//     db.query('SELECT * FROM genres', (err, results) => {
-//         if (err) {
-//             res.status(500).send(err);
-//         } else {
-//             res.json(results);
-//         }
-//     });
-// });
-
-// GET QUOTES BY GENRE
-app.get('/quotes/:genre', (req, res) => {
-    if (!db) {
-        res.status(500).send('Database connection not established');
-        return;
-    }
-
-    const genre = req.params.genre;
-    db.query('SELECT * FROM quotes WHERE genre = ?', [genre], (err, results) => {
-        if (err) {
-            res.status(500).send(err);
-        } else {
-            res.json(results);
-        }
-    });
-});
-
 // GET BOOK BY ID
 app.get('/books/:id', (req, res) => {
     if (!db) {
@@ -84,6 +51,46 @@ app.get('/books/:id', (req, res) => {
         }
     });
 });
+
+
+//GET ALL QUOTES 
+app.get('/quotes', (req, res) => {
+    if (!db) {
+        res.status(500).send('Database connection not established');
+        return;
+    }
+
+    const sql = 'SELECT * FROM quotes';
+    db.query(sql, (err, results) => {
+        if (err) {
+            res.status(500).send(err.message);
+        } else {
+            res.json(results);
+        }
+    });
+});
+
+//GET QUOTES BY GENRE
+app.get('/quotes/genre/:genre', (req, res) => {
+    if (!db) {
+        res.status(500).send('Database connection not established');
+        return;
+    }
+
+    const genre = req.params.genre;
+    const sql = 'SELECT * FROM quotes WHERE genre = ?';
+    db.query(sql, [genre], (err, results) => {
+        if (err) {
+            res.status(500).send(err.message);
+        } else if (results.length === 0) {
+            res.status(404).send('No quotes found for this genre');
+        } else {
+            res.json(results);
+        }
+    });
+});
+
+
 
 // GET STRUCTURED BOOK DESCRIPTION
 app.get('/book_profiles/:id', (req, res) => {
@@ -105,6 +112,8 @@ app.get('/book_profiles/:id', (req, res) => {
             }
         });
 });
+
+
 
 app.listen(PORT, () => {
     console.log(`App is running on port ${PORT}`);
