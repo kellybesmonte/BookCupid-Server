@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import mysql from 'mysql2';
+import bookProfilesRouter from './routes/book_profiles.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 8082;
@@ -28,6 +29,7 @@ initializeDatabase();
 
 app.use(cors({ origin: CROSS_ORIGIN }));
 app.use(express.json());
+app.use('/api', bookProfilesRouter);
 
 // ROUTES //
 
@@ -52,42 +54,6 @@ app.get('/books/:id', (req, res) => {
         }
     });
 });
-
-
-///GET BOOKS BY GENRE
-
-app.get('/books/genre/:genre', (req, res) => {
-    if (!db) {
-        res.status(500).send('Database connection not established');
-        return;
-    }
-
-    const requestedGenre = req.params.genre;
-
-    // Query to fetch book IDs based on the genre from JSON array
-    const sql = `
-        SELECT id
-        FROM books
-        WHERE JSON_CONTAINS(genres, JSON_ARRAY(?))
-    `;
-
-    db.query(sql, [requestedGenre], (err, results) => {
-        if (err) {
-            console.error('Error querying database:', err);
-            res.status(500).send(err.message);
-        } else if (results.length === 0) {
-            res.status(404).send('No books found for this genre');
-        } else {
-            // Extract the book IDs from the results
-            const bookIDs = results.map(book => book.id);
-            res.json(bookIDs);
-        }
-    });
-});
-
-
-
-
 
 
 //GET ALL QUOTES 
