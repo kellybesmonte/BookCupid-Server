@@ -54,6 +54,41 @@ app.get('/books/:id', (req, res) => {
 });
 
 
+///GET BOOKS BY GENRE
+
+app.get('/books/genre/:genre', (req, res) => {
+    if (!db) {
+        res.status(500).send('Database connection not established');
+        return;
+    }
+
+    const requestedGenre = req.params.genre;
+
+    // Query to fetch book IDs based on the genre from JSON array
+    const sql = `
+        SELECT id
+        FROM books
+        WHERE JSON_CONTAINS(genres, JSON_ARRAY(?))
+    `;
+
+    db.query(sql, [requestedGenre], (err, results) => {
+        if (err) {
+            console.error('Error querying database:', err);
+            res.status(500).send(err.message);
+        } else if (results.length === 0) {
+            res.status(404).send('No books found for this genre');
+        } else {
+            // Extract the book IDs from the results
+            const bookIDs = results.map(book => book.id);
+            res.json(bookIDs);
+        }
+    });
+});
+
+
+
+
+
 
 //GET ALL QUOTES 
 app.get('/quotes', (req, res) => {
@@ -73,24 +108,25 @@ app.get('/quotes', (req, res) => {
 });
 
 //GET QUOTES BY GENRE
-app.get('/quotes/genre/:genre', (req, res) => {
+app.get('/quotes/genre/:genres', (req, res) => {
     if (!db) {
         res.status(500).send('Database connection not established');
         return;
     }
 
-    const genre = req.params.genre;
-    const sql = 'SELECT * FROM quotes WHERE genre = ?';
-    db.query(sql, [genre], (err, results) => {
+    const genres = req.params.genres.split(',').map(genre => genre.trim()); 
+    const sql = 'SELECT * FROM quotes WHERE genre IN (?)';
+    db.query(sql, [genres], (err, results) => {
         if (err) {
             res.status(500).send(err.message);
         } else if (results.length === 0) {
-            res.status(404).send('No quotes found for this genre');
+            res.status(404).send('No quotes found for these genres');
         } else {
             res.json(results);
         }
     });
 });
+
 
 
 
