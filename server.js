@@ -6,7 +6,7 @@ import bookProfilesRouter from './routes/book_profiles.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 8082;
-const CROSS_ORIGIN = process.env.CROSS_ORIGIN || '*';
+const CROSS_ORIGIN = process.env.CROSS_ORIGIN || 'http://localhost:5173';
 
 let db;
 
@@ -27,7 +27,11 @@ async function initializeDatabase() {
 
 initializeDatabase(); 
 
-app.use(cors({ origin: CROSS_ORIGIN }));
+app.use(cors({
+    origin: CROSS_ORIGIN,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use('/api', bookProfilesRouter);
 
@@ -49,11 +53,14 @@ app.get('/books/:id', (req, res) => {
         if (err) {
             console.error('Error querying database:', err);
             res.status(500).send(err.message);
+        } else if (results.length === 0) {
+            res.status(404).send('No book found for this ID');
         } else {
-            res.json(results);
+            res.json(results[0]); 
         }
     });
 });
+
 
 
 //GET ALL QUOTES 
