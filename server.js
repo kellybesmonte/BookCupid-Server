@@ -62,33 +62,35 @@ app.get('/books/:id', (req, res) => {
 });
 
 // GET BOOKS BY GENRE
-app.get('/books/genre/:genres', (req, res) => {
+app.get('/books/genre/:genres', async (req, res) => {
     if (!db) {
         res.status(500).send('Database connection not established');
         return;
     }
 
     const genres = req.params.genres.split(',').map(genre => genre.trim());
-
-    const genreConditions = genres.map(() => 'JSON_CONTAINS(genres, ?)').join(' OR ');
+    const genreConditions = genres.map(() => 'JSON_CONTAINS(genre, ?)').join(' OR ');
     const sql = `SELECT * FROM books WHERE ${genreConditions}`;
-
-
-    const params = genres.map(genre => JSON.stringify([genre]));
+    const params = genres.map(genre => JSON.stringify(genre)); // Ensure this matches your database JSON structure
 
     console.log(`SQL Query: ${sql}`);
     console.log(`Params: ${params}`);
 
-    db.query(sql, params, (err, results) => {
-        if (err) {
-            res.status(500).send(err.message);
-        } else if (results.length === 0) {
+    try {
+        const [results] = await db.query(sql, params);
+        if (results.length === 0) {
+            console.log('No books found for these genres');
             res.status(404).send('No books found for these genres');
         } else {
+            console.log('Books found:', results);
             res.json(results);
         }
-    });
+    } catch (err) {
+        console.error('Database query error:', err);
+        res.status(500).send('Internal server error: ' + err.message);
+    }
 });
+
 
 
 
@@ -111,8 +113,7 @@ app.get('/quotes', (req, res) => {
 });
 
 //GET QUOTES BY GENRE
-// GET BOOKS BY GENRE
-app.get('/books/genre/:genres', (req, res) => {
+app.get('/books/genre/:genres', async (req, res) => {
     if (!db) {
         res.status(500).send('Database connection not established');
         return;
@@ -120,29 +121,31 @@ app.get('/books/genre/:genres', (req, res) => {
 
     const genres = req.params.genres.split(',').map(genre => genre.trim());
 
-    // Constructing a SQL query with JSON_CONTAINS_PATH for each genre
-    const genreConditions = genres.map(() => 'JSON_CONTAINS_PATH(genres, "one", ?)').join(' OR ');
+    // Constructing a SQL query with JSON_CONTAINS for each genre
+    const genreConditions = genres.map(() => 'JSON_CONTAINS(genres, ?)').join(' OR ');
     const sql = `SELECT * FROM books WHERE ${genreConditions}`;
 
-    // Preparing parameters for JSON_CONTAINS_PATH
-    const params = genres.map(genre => `$.${genre}`);
+    // Preparing parameters for JSON_CONTAINS
+    const params = genres.map(genre => JSON.stringify(genre));
 
     console.log(`SQL Query: ${sql}`);
     console.log(`Params: ${params}`);
 
-    db.query(sql, params)
-        .then(([results]) => {
-            if (results.length === 0) {
-                res.status(404).send('No books found for these genres');
-            } else {
-                res.json(results);
-            }
-        })
-        .catch(err => {
-            console.error('Database query error:', err);
-            res.status(500).send('Internal server error: ' + err.message);
-        });
+    try {
+        const [results] = await db.query(sql, params);
+        if (results.length === 0) {
+            console.log('No books found for these genres');
+            res.status(404).send('No books found for these genres');
+        } else {
+            console.log('Books found:', results);
+            res.json(results);
+        }
+    } catch (err) {
+        console.error('Database query error:', err);
+        res.status(500).send('Internal server error: ' + err.message);
+    }
 });
+
 
 
 
