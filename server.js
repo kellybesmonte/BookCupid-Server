@@ -10,14 +10,21 @@ const CROSS_ORIGIN = process.env.CROSS_ORIGIN || 'http://localhost:5173';
 
 let db;
 
+// Function to replace '/' with "'"
+// These were replaced in MYSQL to run queries successfully.
+function replaceSlashWithQuote(inputString) {
+    return inputString.replace(/\//g, "'");
+}
+
 async function initializeDatabase() {
     try {
         db = await mysql.createConnection({
             host: process.env.DB_HOST,
             user: process.env.DB_LOCAL_USER,
             password: process.env.DB_LOCAL_PASSWORD,
-            database: process.env.DB_LOCAL_NAME
-        });
+            database: process.env.DB_LOCAL_NAME,
+
+        }).promise(); 
 
         console.log('Connected to the database');
     } catch (err) {
@@ -25,8 +32,9 @@ async function initializeDatabase() {
     }
 }
 
-initializeDatabase(); 
+initializeDatabase();
 
+// Middleware
 app.use(cors({
     origin: CROSS_ORIGIN,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -35,54 +43,46 @@ app.use(cors({
 app.use(express.json());
 app.use('/api', bookProfilesRouter);
 
-// ROUTES //
 
-app.get('/', (req, res) => {
-    res.send('Book Cupid');
-});
 
-// GET BOOK BY ID
-app.get('/books/:id', (req, res) => {
-    if (!db) {
-        res.status(500).send('Database connection not established');
-        return;
-    }
+app.get('/books/:id', async (req, res) => {
+    try {
+        if (!db) {
+            res.status(500).send('Database connection not established');
+            return;
+        }
 
-    const id = req.params.id;
-    db.query('SELECT * FROM books WHERE id = ?', [id], (err, results) => {
-        if (err) {
-            console.error('Error querying database:', err);
-            res.status(500).send(err.message);
-        } else if (results.length === 0) {
+        const id = req.params.id;
+        const [results] = await db.query('SELECT * FROM books WHERE id = ?', [id]);
+
+        if (results.length === 0) {
             res.status(404).send('No book found for this ID');
         } else {
-            res.json(results[0]); 
+            res.json(results[0]);
         }
-    });
+    } catch (err) {
+        console.error('Database query error:', err);
+        res.status(500).send('Internal server error: ' + err.message);
+    }
 });
 
 // GET BOOKS BY GENRE
 app.get('/books/genre/:genres', async (req, res) => {
-    if (!db) {
-        res.status(500).send('Database connection not established');
-        return;
-    }
-
-    const genres = req.params.genres.split(',').map(genre => genre.trim());
-    const genreConditions = genres.map(() => 'JSON_CONTAINS(genre, ?)').join(' OR ');
-    const sql = `SELECT * FROM books WHERE ${genreConditions}`;
-    const params = genres.map(genre => JSON.stringify(genre)); // Ensure this matches your database JSON structure
-
-    console.log(`SQL Query: ${sql}`);
-    console.log(`Params: ${params}`);
-
     try {
+        if (!db) {
+            res.status(500).send('Database connection not established');
+            return;
+        }
+        const genres = req.params.genres.split(',').map(genre => genre.trim());
+        const genreConditions = genres.map(() => 'JSON_CONTAINS(genre, ?)').join(' OR ');
+        const sql = `SELECT * FROM books WHERE ${genreConditions}`;
+        const params = genres.map(genre => JSON.stringify(genre));
+
         const [results] = await db.query(sql, params);
+
         if (results.length === 0) {
-            console.log('No books found for these genres');
             res.status(404).send('No books found for these genres');
         } else {
-            console.log('Books found:', results);
             res.json(results);
         }
     } catch (err) {
@@ -91,53 +91,37 @@ app.get('/books/genre/:genres', async (req, res) => {
     }
 });
 
-
-
-
-
-//GET ALL QUOTES 
-app.get('/quotes', (req, res) => {
-    if (!db) {
-        res.status(500).send('Database connection not established');
-        return;
-    }
-
-    const sql = 'SELECT * FROM quotes';
-    db.query(sql, (err, results) => {
-        if (err) {
-            res.status(500).send(err.message);
-        } else {
-            res.json(results);
+// GET ALL QUOTES
+app.get('/quotes', async (req, res) => {
+    try {
+        if (!db) {
+            res.status(500).send('Database connection not established');
+            return;
         }
-    });
+
+        const [results] = await db.query('SELECT * FROM quotes');
+        res.json(results);
+    } catch (err) {
+        console.error('Database query error:', err);
+        res.status(500).send('Internal server error: ' + err.message);
+    }
 });
 
-//GET QUOTES BY GENRE
-app.get('/books/genre/:genres', async (req, res) => {
-    if (!db) {
-        res.status(500).send('Database connection not established');
-        return;
-    }
-
-    const genres = req.params.genres.split(',').map(genre => genre.trim());
-
-    // Constructing a SQL query with JSON_CONTAINS for each genre
-    const genreConditions = genres.map(() => 'JSON_CONTAINS(genres, ?)').join(' OR ');
-    const sql = `SELECT * FROM books WHERE ${genreConditions}`;
-
-    // Preparing parameters for JSON_CONTAINS
-    const params = genres.map(genre => JSON.stringify(genre));
-
-    console.log(`SQL Query: ${sql}`);
-    console.log(`Params: ${params}`);
-
+// GET QUOTES BY GENRE
+app.get('/quotes/genre/:genres', async (req, res) => {
     try {
-        const [results] = await db.query(sql, params);
+        if (!db) {
+            res.status(500).send('Database connection not established');
+            return;
+        }
+
+        const genres = req.params.genres.split(',').map(genre => genre.trim());
+        const sql = 'SELECT * FROM quotes WHERE genre IN (?)';
+        const [results] = await db.query(sql, [genres]);
+
         if (results.length === 0) {
-            console.log('No books found for these genres');
-            res.status(404).send('No books found for these genres');
+            res.status(404).send('No quotes found for these genres');
         } else {
-            console.log('Books found:', results);
             res.json(results);
         }
     } catch (err) {
@@ -145,35 +129,40 @@ app.get('/books/genre/:genres', async (req, res) => {
         res.status(500).send('Internal server error: ' + err.message);
     }
 });
-
-
-
-
 
 // GET STRUCTURED BOOK DESCRIPTION
-app.get('/book_profiles/:id', (req, res) => {
-    if (!db) {
-        res.status(500).send('Database connection not established');
-        return;
-    }
+app.get('/book_profiles/:id', async (req, res) => {
+    try {
+        if (!db) {
+            res.status(500).send('Database connection not established');
+            return;
+        }
 
-    const id = req.params.id;
-    db.query(`
-        SELECT b.title, b.author, bp.structured_description
-        FROM books b
-        JOIN book_profiles bp ON b.id = bp.book_id
-        WHERE b.id = ?`, [id], (err, results) => {
-            if (err) {
-                res.status(500).send(err);
-            } else {
-                res.json(results);
-            }
-        });
+        const id = req.params.id;
+        const [results] = await db.query(`
+            SELECT b.title, b.author, bp.structured_description
+            FROM books b
+            JOIN book_profiles bp ON b.id = bp.book_id
+            WHERE b.id = ?`, [id]);
+
+        if (results.length === 0) {
+            res.status(404).send('No book profile found for this ID');
+        } else {
+            res.json(results[0]);
+        }
+    } catch (err) {
+        console.error('Database query error:', err);
+        res.status(500).send('Internal server error: ' + err.message);
+    }
 });
 
+
+// ROUTES
+app.get('/', (req, res) => {
+    res.send('Book Cupid');
+});
 
 
 app.listen(PORT, () => {
     console.log(`App is running on port ${PORT}`);
 });
-
