@@ -3,7 +3,7 @@
 /**
  * 
  * 
- * @param { import("knex").Knex } knex - Knex instance for executing SQL queries.
+ * @param { import("knex").Knex } knex 
  * @returns { Promise<void> }
  */
 export const up = function(knex) {

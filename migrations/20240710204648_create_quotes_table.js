@@ -8,7 +8,7 @@
  */
 export const up = function(knex) {
     return knex.schema.createTableIfNotExists("quotes", function(table) {
-        // Define table columns
+    
         table.increments("id").primary();
         table.string("genre").notNullable();
         table.string("quote");

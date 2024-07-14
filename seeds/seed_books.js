@@ -1,18 +1,3 @@
-
-// /**
-//  * 
-//  * @param { import("knex").Knex } knex 
-//  * @returns { Promise<void> }
-//  */
-// export async function seed(knex) {
-
-//   const existingBooks = await knex("books").select("*");
-
-
-//   await knex("books").insert(existingBooks);
-// }
-
-
 /**
  * 
  * @param { import("knex").Knex } knex 

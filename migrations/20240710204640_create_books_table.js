@@ -8,7 +8,6 @@
  */
 export const up = function(knex) {
     return knex.schema.createTableIfNotExists("books", function(table) {
-        // Define table columns
         table.increments("id").primary();
         table.string("title").notNullable();
         table.string("author");
