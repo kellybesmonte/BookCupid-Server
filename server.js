@@ -10,6 +10,8 @@ const CROSS_ORIGIN = process.env.CROSS_ORIGIN || 'http://localhost:5173';
 
 let db;
 
+
+
 async function initializeDatabase() {
     try {
         db = await mysql.createConnection({
@@ -28,7 +30,7 @@ async function initializeDatabase() {
 
 initializeDatabase();
 
-
+// Middleware
 app.use(cors({
     origin: CROSS_ORIGIN,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
