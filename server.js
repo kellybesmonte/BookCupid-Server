@@ -45,6 +45,7 @@ async function initializeDatabase() {
     }
 }
 
+
 // Middleware
 app.use(cors({
     origin: CROSS_ORIGIN,
@@ -181,18 +182,13 @@ app.get('/book_profiles/:id', async (req, res) => {
     }
 });
 
-// Catch-all for undefined routes
+// Catch-all for undefined routes//
 app.use((req, res) => {
     console.log('Route not found:', req.originalUrl);
     res.status(404).send('Route not found');
 });
 
-// Call initializeDatabase before starting the server
-initializeDatabase().then(() => {
-    app.listen(PORT, () => {
-        console.log(`App is running on port ${PORT}`);
-    });
-}).catch(err => {
-    console.error('Failed to start server:', err.message);
+app.listen(PORT, () => {
+    console.log(`App is running on port ${PORT}`);
 });
 
