@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import mysql from 'mysql2/promise'; // Use mysql2/promise for async/await support
+import mysql from 'mysql2/promise'; 
 import bookProfilesRouter from './routes/book_profiles.routes.js';
 
 const app = express();
@@ -13,8 +13,15 @@ let db;
 async function initializeDatabase() {
     try {
         const dbUrl = process.env.DATABASE_URL;
+        if (!dbUrl) {
+            throw new Error('DATABASE_URL is not set');
+        }
         const params = new URL(dbUrl);
         const [user, password] = params.auth.split(':');
+        
+        if (!user || !password) {
+            throw new Error('Invalid auth information in DATABASE_URL');
+        }
 
         db = await mysql.createConnection({
             host: params.hostname,
@@ -26,9 +33,10 @@ async function initializeDatabase() {
 
         console.log('Connected to the database');
     } catch (err) {
-        console.error('Error connecting to the database:', err);
+        console.error('Error connecting to the database:', err.message);
     }
 }
+
 
 initializeDatabase();
 
