@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import mysql from 'mysql2';
+import mysql from 'mysql2/promise'; // Use mysql2/promise for async/await support
 import bookProfilesRouter from './routes/book_profiles.routes.js';
 
 const app = express();
@@ -12,13 +12,17 @@ let db;
 
 async function initializeDatabase() {
     try {
-        db = await mysql.createConnection({
-            host: process.env.DB_HOST,
-            user: process.env.DB_LOCAL_USER,
-            password: process.env.DB_LOCAL_PASSWORD,
-            database: process.env.DB_LOCAL_NAME,
+        const dbUrl = process.env.DATABASE_URL;
+        const params = new URL(dbUrl);
+        const [user, password] = params.auth.split(':');
 
-        }).promise(); 
+        db = await mysql.createConnection({
+            host: params.hostname,
+            user: user,
+            password: password,
+            database: params.pathname.split('/')[1],
+            port: params.port
+        });
 
         console.log('Connected to the database');
     } catch (err) {
@@ -28,7 +32,7 @@ async function initializeDatabase() {
 
 initializeDatabase();
 
-
+// Middleware
 app.use(cors({
     origin: CROSS_ORIGIN,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -36,8 +40,6 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use('/api', bookProfilesRouter);
-
-
 
 app.get('/books/:id', async (req, res) => {
     try {
@@ -150,12 +152,10 @@ app.get('/book_profiles/:id', async (req, res) => {
     }
 });
 
-
 // ROUTES
 app.get('/', (req, res) => {
     res.send('Book Cupid');
 });
-
 
 app.listen(PORT, () => {
     console.log(`App is running on port ${PORT}`);
