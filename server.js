@@ -32,11 +32,11 @@ async function initializeDatabase() {
 
         // Create a database connection
         db = await mysql.createConnection({
-            host: 'mysql.railway.internal',
-            user: 'root',
-            password: 'eBLUbMGzJedAAsVpHdjswuPPtwDJowzx',
-            database: 'book_cupid_recs',
-            port: 3306
+            host: params.hostname,
+            user: user,
+            password: password,
+            database: database,
+            port: params.port || 3306
         });
 
         console.log('Connected to the database');
