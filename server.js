@@ -47,7 +47,6 @@ async function initializeDatabase() {
 
 initializeDatabase();
 
-
 // Middleware
 app.use(cors({
     origin: CROSS_ORIGIN,
@@ -57,7 +56,19 @@ app.use(cors({
 app.use(express.json());
 app.use('/api', bookProfilesRouter);
 
+// Basic route for debugging
+app.get('/test', (req, res) => {
+    res.send('Test route is working');
+});
+
+// Main route
+app.get('/', (req, res) => {
+    res.send('Book Cupid');
+});
+
+// Example route with logging
 app.get('/books/:id', async (req, res) => {
+    console.log('Received request for /books/:id with ID:', req.params.id);
     try {
         if (!db) {
             res.status(500).send('Database connection not established');
@@ -80,6 +91,7 @@ app.get('/books/:id', async (req, res) => {
 
 // GET BOOKS BY GENRE
 app.get('/books/genre/:genres', async (req, res) => {
+    console.log('Received request for /books/genre/:genres with genres:', req.params.genres);
     try {
         if (!db) {
             res.status(500).send('Database connection not established');
@@ -105,6 +117,7 @@ app.get('/books/genre/:genres', async (req, res) => {
 
 // GET ALL QUOTES
 app.get('/quotes', async (req, res) => {
+    console.log('Received request for /quotes');
     try {
         if (!db) {
             res.status(500).send('Database connection not established');
@@ -121,6 +134,7 @@ app.get('/quotes', async (req, res) => {
 
 // GET QUOTES BY GENRE
 app.get('/quotes/genre/:genres', async (req, res) => {
+    console.log('Received request for /quotes/genre/:genres with genres:', req.params.genres);
     try {
         if (!db) {
             res.status(500).send('Database connection not established');
@@ -144,6 +158,7 @@ app.get('/quotes/genre/:genres', async (req, res) => {
 
 // GET STRUCTURED BOOK DESCRIPTION
 app.get('/book_profiles/:id', async (req, res) => {
+    console.log('Received request for /book_profiles/:id with ID:', req.params.id);
     try {
         if (!db) {
             res.status(500).send('Database connection not established');
@@ -168,11 +183,13 @@ app.get('/book_profiles/:id', async (req, res) => {
     }
 });
 
-// ROUTES//
-app.get('/', (req, res) => {
-    res.send('Book Cupid');
+// Catch-all for undefined routes
+app.use((req, res) => {
+    console.log('Route not found:', req.originalUrl);
+    res.status(404).send('Route not found');
 });
 
 app.listen(PORT, () => {
     console.log(`App is running on port ${PORT}`);
 });
+
