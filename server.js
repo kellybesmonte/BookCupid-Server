@@ -16,7 +16,7 @@ async function initializeDatabase() {
         if (!dbUrl) {
             throw new Error('DATABASE_URL is not set');
         }
-        
+
         const params = new URL(dbUrl);
         const auth = params.auth;
         if (!auth) {
@@ -42,10 +42,7 @@ async function initializeDatabase() {
     }
 }
 
-
-
 initializeDatabase();
-
 // Middleware
 app.use(cors({
     origin: CROSS_ORIGIN,
