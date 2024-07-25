@@ -16,9 +16,14 @@ async function initializeDatabase() {
         if (!dbUrl) {
             throw new Error('DATABASE_URL is not set');
         }
-        const params = new URL(dbUrl);
-        const [user, password] = params.auth.split(':');
         
+        const params = new URL(dbUrl);
+        const auth = params.auth;
+        if (!auth) {
+            throw new Error('AUTH part is missing in DATABASE_URL');
+        }
+
+        const [user, password] = auth.split(':');
         if (!user || !password) {
             throw new Error('Invalid auth information in DATABASE_URL');
         }
@@ -36,6 +41,7 @@ async function initializeDatabase() {
         console.error('Error connecting to the database:', err.message);
     }
 }
+
 
 
 initializeDatabase();
