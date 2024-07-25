@@ -27,11 +27,16 @@ async function initializeDatabase() {
             throw new Error('AUTH part is missing in DATABASE_URL');
         }
 
+        // Extract username and password from auth
         const [user, password] = auth.split(':');
         if (!user || !password) {
             throw new Error('Invalid auth information in DATABASE_URL');
         }
 
+        console.log('Extracted user:', user);  // Debugging line
+        console.log('Extracted password:', password);  // Debugging line
+
+        // Create database connection
         db = await mysql.createConnection({
             host: params.hostname,
             user: user,
@@ -47,7 +52,6 @@ async function initializeDatabase() {
 }
 
 initializeDatabase();
-
 // Middleware
 app.use(cors({
     origin: CROSS_ORIGIN,
