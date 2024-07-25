@@ -17,32 +17,26 @@ async function initializeDatabase() {
             throw new Error('DATABASE_URL is not set');
         }
 
-        console.log('DATABASE_URL:', dbUrl);  // Debugging line
-
         const params = new URL(dbUrl);
-        console.log('URL Params:', params);  // Debugging line
 
-        const auth = params.auth;
-        if (!auth) {
-            throw new Error('AUTH part is missing in DATABASE_URL');
-        }
+        // Get username and password
+        const user = params.username;
+        const password = params.password;
 
-        // Extract username and password from auth
-        const [user, password] = auth.split(':');
         if (!user || !password) {
-            throw new Error('Invalid auth information in DATABASE_URL');
+            throw new Error('Auth part is missing or incorrect in DATABASE_URL');
         }
 
-        console.log('Extracted user:', user);  // Debugging line
-        console.log('Extracted password:', password);  // Debugging line
+        // Remove the leading slash from the pathname
+        const database = params.pathname.slice(1);
 
-        // Create database connection
+        // Create a database connection
         db = await mysql.createConnection({
             host: params.hostname,
             user: user,
             password: password,
-            database: params.pathname.split('/')[1],
-            port: params.port
+            database: database,
+            port: params.port || 3306
         });
 
         console.log('Connected to the database');
@@ -51,8 +45,9 @@ async function initializeDatabase() {
     }
 }
 
-
 initializeDatabase();
+
+
 // Middleware
 app.use(cors({
     origin: CROSS_ORIGIN,
