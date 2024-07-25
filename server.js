@@ -45,6 +45,7 @@ async function initializeDatabase() {
     }
 }
 
+initializeDatabase();
 
 // Middleware
 app.use(cors({
