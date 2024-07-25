@@ -51,27 +51,6 @@ async function initializeDatabase() {
     }
 }
 
-//TESTING LOG//
-async function testConnection() {
-    const dbUrl = 'mysql://root:eBLUbMGzJedAAsVpHdjswuPPtwDJowzx@mysql.railway.internal:3306/railway';
-    try {
-        const params = new URL(dbUrl);
-        const [user, password] = params.auth.split(':');
-        const connection = await mysql.createConnection({
-            host: params.hostname,
-            user: user,
-            password: password,
-            database: params.pathname.split('/')[1],
-            port: params.port || 3306
-        });
-        console.log('Connection successful');
-        await connection.end();
-    } catch (err) {
-        console.error('Error connecting to the database:', err.message);
-    }
-}
-
-testConnection();
 
 initializeDatabase();
 // Middleware
