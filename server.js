@@ -27,7 +27,7 @@ async function initializeDatabase() {
             throw new Error('Auth part is missing or incorrect in DATABASE_URL');
         }
 
-        // Remove the leading slash from the pathname
+        // Remove the leading slash from the pathname to get the database name
         const database = params.pathname.slice(1);
 
         // Create a database connection
@@ -45,7 +45,6 @@ async function initializeDatabase() {
     }
 }
 
-initializeDatabase();
 
 // Middleware
 app.use(cors({
