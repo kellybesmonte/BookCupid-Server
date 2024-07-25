@@ -183,7 +183,7 @@ app.get('/book_profiles/:id', async (req, res) => {
     }
 });
 
-// Catch-all for undefined routes
+// Catch-all for undefined routes//
 app.use((req, res) => {
     console.log('Route not found:', req.originalUrl);
     res.status(404).send('Route not found');
