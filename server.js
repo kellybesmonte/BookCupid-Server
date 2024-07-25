@@ -66,6 +66,11 @@ app.get('/', (req, res) => {
     res.send('Book Cupid');
 });
 
+//TEST ROUTE//
+app.get('/test', (req, res) => {
+    res.send('Test route is working');
+});
+
 // Example route with logging
 app.get('/books/:id', async (req, res) => {
     console.log('Received request for /books/:id with ID:', req.params.id);
