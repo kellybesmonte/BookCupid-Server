@@ -17,7 +17,11 @@ async function initializeDatabase() {
             throw new Error('DATABASE_URL is not set');
         }
 
+        console.log('DATABASE_URL:', dbUrl);  // Debugging line
+
         const params = new URL(dbUrl);
+        console.log('URL Params:', params);  // Debugging line
+
         const auth = params.auth;
         if (!auth) {
             throw new Error('AUTH part is missing in DATABASE_URL');
@@ -43,6 +47,7 @@ async function initializeDatabase() {
 }
 
 initializeDatabase();
+
 // Middleware
 app.use(cors({
     origin: CROSS_ORIGIN,
