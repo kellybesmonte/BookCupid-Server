@@ -56,20 +56,12 @@ app.use(cors({
 app.use(express.json());
 app.use('/api', bookProfilesRouter);
 
-// Basic route for debugging
-app.get('/test', (req, res) => {
-    res.send('Test route is working');
-});
 
 // Main route
 app.get('/', (req, res) => {
     res.send('Book Cupid');
 });
 
-//TEST ROUTE//
-app.get('/test', (req, res) => {
-    res.send('Test route is working');
-});
 
 // Example route with logging
 app.get('/books/:id', async (req, res) => {
@@ -91,6 +83,21 @@ app.get('/books/:id', async (req, res) => {
     } catch (err) {
         console.error('Database query error:', err);
         res.status(500).send('Internal server error: ' + err.message);
+    }
+});
+
+//TEST//
+app.get('/test-db-connection', async (req, res) => {
+    try {
+        if (!db) {
+            res.status(500).send('Database connection not established');
+            return;
+        }
+        const [rows] = await db.query('SELECT 1');
+        res.send('Database connection successful');
+    } catch (err) {
+        console.error('Database connection failed:', err.message);
+        res.status(500).send('Database connection failed: ' + err.message);
     }
 });
 
