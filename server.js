@@ -22,7 +22,9 @@ async function initializeDatabase() {
         // Get username and password
         const user = params.username;
         const password = params.password;
-        const database = params.pathname.slice(1);
+        const host = params.hostname;
+        const port = params.port || 3306;
+        const database = 'book_cupid_recs'; 
 
         console.log(`Connecting to database at ${params.hostname}:${params.port || 3306} as ${user}`);
         console.log(`Database name: ${database}`);
