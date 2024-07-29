@@ -5,7 +5,7 @@ import initKnex from 'knex';
 const knex = initKnex(configuration);
 const router = express.Router();
 
-router.get('/book-profiles/genre/:genre', async (req, res) => {
+router.get('/book_profiles/genre/:genre', async (req, res) => {
     const { genre } = req.params;
 
     try {
@@ -27,4 +27,5 @@ router.get('/book-profiles/genre/:genre', async (req, res) => {
     }
 });
 
+export default router;
 
