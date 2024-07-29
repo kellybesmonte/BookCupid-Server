@@ -53,12 +53,25 @@ app.use(cors({
 app.use(express.json());
 app.use('/api', bookProfilesRouter);
 
-
 // Main route
 app.get('/', (req, res) => {
     res.send('Book Cupid');
 });
 
+// Test database connection route
+app.get('/test-db-connection', async (req, res) => {
+    try {
+        if (!db) {
+            res.status(500).send('Database connection not established');
+            return;
+        }
+        const [rows] = await db.query('SELECT 1');
+        res.send('Database connection successful');
+    } catch (err) {
+        console.error('Database connection failed:', err.message);
+        res.status(500).send('Database connection failed: ' + err.message);
+    }
+});
 
 // Example route with logging
 app.get('/books/:id', async (req, res) => {
@@ -80,21 +93,6 @@ app.get('/books/:id', async (req, res) => {
     } catch (err) {
         console.error('Database query error:', err);
         res.status(500).send('Internal server error: ' + err.message);
-    }
-});
-
-//TEST//
-app.get('/test-db-connection', async (req, res) => {
-    try {
-        if (!db) {
-            res.status(500).send('Database connection not established');
-            return;
-        }
-        const [rows] = await db.query('SELECT 1');
-        res.send('Database connection successful');
-    } catch (err) {
-        console.error('Database connection failed:', err.message);
-        res.status(500).send('Database connection failed: ' + err.message);
     }
 });
 
@@ -192,7 +190,7 @@ app.get('/book_profiles/:id', async (req, res) => {
     }
 });
 
-// Catch-all for undefined routes//
+// Catch-all for undefined routes
 app.use((req, res) => {
     console.log('Route not found:', req.originalUrl);
     res.status(404).send('Route not found');
@@ -201,4 +199,3 @@ app.use((req, res) => {
 app.listen(PORT, () => {
     console.log(`App is running on port ${PORT}`);
 });
-
