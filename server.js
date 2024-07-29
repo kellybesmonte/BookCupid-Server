@@ -61,20 +61,7 @@ app.get('/', (req, res) => {
     res.send('Book Cupid');
 });
 
-// Test database connection route
-app.get('/test-db-connection', async (req, res) => {
-    try {
-        if (!db) {
-            res.status(500).send('Database connection not established');
-            return;
-        }
-        const [rows] = await db.query('SELECT 1');
-        res.send('Database connection successful');
-    } catch (err) {
-        console.error('Database connection failed:', err.message);
-        res.status(500).send('Database connection failed: ' + err.message);
-    }
-});
+
 
 
 app.get('/books/:id', async (req, res) => {
@@ -168,7 +155,7 @@ app.get('/quotes/genre/:genres', async (req, res) => {
 
 // GET STRUCTURED BOOK DESCRIPTION
 app.get('/book-profiles/:id', async (req, res) => {
-    console.log('Received request for /book_profiles/:id with ID:', req.params.id);
+    console.log('Received request for /book-profiles/:id with ID:', req.params.id);
     try {
         if (!db) {
             res.status(500).send('Database connection not established');
