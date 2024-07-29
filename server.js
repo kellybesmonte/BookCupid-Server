@@ -22,15 +22,11 @@ async function initializeDatabase() {
         // Get username and password
         const user = params.username;
         const password = params.password;
-
-        if (!user || !password) {
-            throw new Error('Auth part is missing or incorrect in DATABASE_URL');
-        }
-
-        // Remove the leading slash from the pathname to get the database name
         const database = params.pathname.slice(1);
 
-        // Create a database connection
+        console.log(`Connecting to database at ${params.hostname}:${params.port || 3306} as ${user}`);
+        console.log(`Database name: ${database}`);
+
         db = await mysql.createConnection({
             host: params.hostname,
             user: user,
@@ -42,6 +38,7 @@ async function initializeDatabase() {
         console.log('Connected to the database');
     } catch (err) {
         console.error('Error connecting to the database:', err.message);
+        process.exit(1);  // Exit the process if database connection fails
     }
 }
 
