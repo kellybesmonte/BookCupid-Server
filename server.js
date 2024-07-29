@@ -76,7 +76,7 @@ app.get('/test-db-connection', async (req, res) => {
     }
 });
 
-// Example route with logging
+
 app.get('/books/:id', async (req, res) => {
     console.log('Received request for /books/:id with ID:', req.params.id);
     try {
@@ -167,7 +167,7 @@ app.get('/quotes/genre/:genres', async (req, res) => {
 });
 
 // GET STRUCTURED BOOK DESCRIPTION
-app.get('/book_profiles/:id', async (req, res) => {
+app.get('/book-profiles/:id', async (req, res) => {
     console.log('Received request for /book_profiles/:id with ID:', req.params.id);
     try {
         if (!db) {
