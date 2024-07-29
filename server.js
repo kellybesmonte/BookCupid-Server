@@ -22,13 +22,15 @@ async function initializeDatabase() {
         // Get username and password
         const user = params.username;
         const password = params.password;
-        const host = params.hostname;
-        const port = params.port || 3306;
-        const database = 'book_cupid_recs'; 
 
-        console.log(`Connecting to database at ${params.hostname}:${params.port || 3306} as ${user}`);
-        console.log(`Database name: ${database}`);
+        if (!user || !password) {
+            throw new Error('Auth part is missing or incorrect in DATABASE_URL');
+        }
 
+        // Remove the leading slash from the pathname to get the database name
+        const database = params.pathname.slice(1);
+
+        // Create a database connection
         db = await mysql.createConnection({
             host: params.hostname,
             user: user,
@@ -40,7 +42,6 @@ async function initializeDatabase() {
         console.log('Connected to the database');
     } catch (err) {
         console.error('Error connecting to the database:', err.message);
-        process.exit(1);  // Exit the process if database connection fails
     }
 }
 
@@ -55,25 +56,12 @@ app.use(cors({
 app.use(express.json());
 app.use('/api', bookProfilesRouter);
 
+
 // Main route
 app.get('/', (req, res) => {
     res.send('Book Cupid');
 });
 
-// Test database connection route
-app.get('/test-db-connection', async (req, res) => {
-    try {
-        if (!db) {
-            res.status(500).send('Database connection not established');
-            return;
-        }
-        const [rows] = await db.query('SELECT 1');
-        res.send('Database connection successful');
-    } catch (err) {
-        console.error('Database connection failed:', err.message);
-        res.status(500).send('Database connection failed: ' + err.message);
-    }
-});
 
 // Example route with logging
 app.get('/books/:id', async (req, res) => {
@@ -95,6 +83,21 @@ app.get('/books/:id', async (req, res) => {
     } catch (err) {
         console.error('Database query error:', err);
         res.status(500).send('Internal server error: ' + err.message);
+    }
+});
+
+//TEST//
+app.get('/test-db-connection', async (req, res) => {
+    try {
+        if (!db) {
+            res.status(500).send('Database connection not established');
+            return;
+        }
+        const [rows] = await db.query('SELECT 1');
+        res.send('Database connection successful');
+    } catch (err) {
+        console.error('Database connection failed:', err.message);
+        res.status(500).send('Database connection failed: ' + err.message);
     }
 });
 
@@ -192,12 +195,12 @@ app.get('/book_profiles/:id', async (req, res) => {
     }
 });
 
-// Catch-all for undefined routes
+// Catch-all for undefined routes//
 app.use((req, res) => {
     console.log('Route not found:', req.originalUrl);
     res.status(404).send('Route not found');
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
     console.log(`App is running on port ${PORT}`);
 });
