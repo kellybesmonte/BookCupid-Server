@@ -31,12 +31,12 @@ async function initializeDatabase() {
         const database = params.pathname.slice(1);
 
         // Create a database connection
-        db = await mysql.createConnection({
-            host: params.hostname,
-            user: user,
-            password: password,
-            database: database,
-            port: params.port || 3306
+        const db = await mysql.createConnection({
+            host: process.env.MYSQL_HOST,
+            user: process.env.MYSQL_USER,
+            password: process.env.MYSQL_PASSWORD,
+            database: process.env.MYSQL_DATABASE,
+            port: process.env.MYSQL_PORT
         });
 
         console.log('Connected to the database');
