@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
-import * as bookProfilesRouter from './routes/book_profiles.routes.js';
+import bookProfilesRouter from './routes/book_profiles.routes.js';
 
 const app = express();
 
@@ -66,12 +66,13 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
-app.use('/api', bookProfilesRouter);
 
 // Main route
 app.get('/', (req, res) => {
     res.send('Book Cupid');
 });
+//Book Profile route
+app.use('/api', bookProfilesRouter);
 
 // Endpoint handlers
 app.get('/books/:id', async (req, res) => {
