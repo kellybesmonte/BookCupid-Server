@@ -145,24 +145,7 @@ app.get('/quotes/genre/:genres', async (req, res) => {
     }
 });
 
-//GET BOOK PROFILES
-app.get('/book_profiles/genre/:genres', async (req, res) => {
-    console.log('Received request for /book_profiles/genre/:genres with genres:', req.params.genres);
-    try {
-        const genres = req.params.genres.split(',').map(genre => genre.trim());
-        const sql = 'SELECT * FROM book_profiles WHERE genre IN (?)';
-        const results = await db.raw(sql, [genres]);
 
-        if (results.rows.length === 0) {
-            res.status(404).send('No book profiles found for these genres');
-        } else {
-            res.json(results.rows);
-        }
-    } catch (err) {
-        console.error('Database query error:', err);
-        res.status(500).send('Internal server error: ' + err.message);
-    }
-});
 
 // GET STRUCTURED BOOK DESCRIPTION
 app.get('/book_profiles/:id', async (req, res) => {

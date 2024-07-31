@@ -21,6 +21,8 @@ router.get('/book_profiles/genre/:genres', async (req, res) => {
             .whereRaw(`(${genreConditions})`)
             .select('bp.*', 'b.genre');
 
+            console.log('Query results:', results);
+
         if (results.length === 0) {
             res.status(404).send('No book profiles found for these genres');
         } else {
