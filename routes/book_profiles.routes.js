@@ -4,7 +4,7 @@ import * as getBookProfilesByGenre from '../controllers/bookProfilesController.j
 const router = express.Router();
 
 
-router.get('/book-profiles/genre/:genres', getBookProfilesByGenre);
+router.get('/book_profiles/genre/:genres', getBookProfilesByGenre);
 
 
 export default router;
