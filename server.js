@@ -144,6 +144,7 @@ app.get('/quotes/genre/:genres', async (req, res) => {
 });
 
 //GET BOOK PROFILES
+
 app.get('/book_profiles/genre/:genres', async (req, res) => {
     console.log('Received request for /book_profiles/genre/:genres with genres:', req.params.genres);
     try {
@@ -152,7 +153,7 @@ app.get('/book_profiles/genre/:genres', async (req, res) => {
         const sql = `
             SELECT bp.*
             FROM book_profiles bp
-            JOIN quotes q ON bp.book_id = q.book_id
+            JOIN quotes q ON bp.some_id_column = q.some_id_column  // Adjust this join condition
             WHERE q.genre IN (?)
         `;
         const [results] = await db.query(sql, [genres]);
@@ -167,6 +168,7 @@ app.get('/book_profiles/genre/:genres', async (req, res) => {
         res.status(500).send('Internal server error: ' + err.message);
     }
 });
+
 
 // GET STRUCTURED BOOK DESCRIPTION
 app.get('/book_profiles/:id', async (req, res) => {
