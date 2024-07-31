@@ -148,9 +148,8 @@ app.get('/book_profiles/genre/:genres', async (req, res) => {
     console.log('Received request for /book_profiles/genre/:genres with genres:', req.params.genres);
     try {
         const genres = req.params.genres.split(',').map(genre => genre.trim());
-        const genreConditions = genres.map(() => 'genre = ?').join(' OR ');
-        const sql = `SELECT * FROM book_profiles WHERE ${genreConditions}`;
-        const [results] = await db.query(sql, genres);
+        const sql = 'SELECT * FROM book_profiles WHERE genre IN (?)';
+        const [results] = await db.query(sql, [genres]);
 
         if (results.length === 0) {
             res.status(404).send('No book profiles found for these genres');
