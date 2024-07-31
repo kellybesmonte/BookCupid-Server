@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import mysql from 'mysql2/promise'; 
+import mysql from 'mysql2/promise';
 import bookProfilesRouter from './routes/book_profiles.routes.js';
 
 const app = express();
@@ -20,7 +20,6 @@ async function initializeDatabase() {
 
         const params = new URL(dbUrl);
 
-        // Get username and password
         const user = params.username;
         const password = params.password;
         const database = params.pathname.slice(1);
@@ -45,8 +44,6 @@ async function initializeDatabase() {
     }
 }
 
-initializeDatabase();
-
 // Middleware
 app.use(cors({
     origin: CROSS_ORIGIN,
@@ -61,17 +58,10 @@ app.get('/', (req, res) => {
     res.send('Book Cupid');
 });
 
-
-
-
+// Endpoint handlers
 app.get('/books/:id', async (req, res) => {
     console.log('Received request for /books/:id with ID:', req.params.id);
     try {
-        if (!db) {
-            res.status(500).send('Database connection not established');
-            return;
-        }
-
         const id = req.params.id;
         const [results] = await db.query('SELECT * FROM books WHERE id = ?', [id]);
 
@@ -90,10 +80,6 @@ app.get('/books/:id', async (req, res) => {
 app.get('/books/genre/:genres', async (req, res) => {
     console.log('Received request for /books/genre/:genres with genres:', req.params.genres);
     try {
-        if (!db) {
-            res.status(500).send('Database connection not established');
-            return;
-        }
         const genres = req.params.genres.split(',').map(genre => genre.trim());
         const genreConditions = genres.map(() => 'JSON_CONTAINS(genre, ?)').join(' OR ');
         const sql = `SELECT * FROM books WHERE ${genreConditions}`;
@@ -116,11 +102,6 @@ app.get('/books/genre/:genres', async (req, res) => {
 app.get('/quotes', async (req, res) => {
     console.log('Received request for /quotes');
     try {
-        if (!db) {
-            res.status(500).send('Database connection not established');
-            return;
-        }
-
         const [results] = await db.query('SELECT * FROM quotes');
         res.json(results);
     } catch (err) {
@@ -133,11 +114,6 @@ app.get('/quotes', async (req, res) => {
 app.get('/quotes/genre/:genres', async (req, res) => {
     console.log('Received request for /quotes/genre/:genres with genres:', req.params.genres);
     try {
-        if (!db) {
-            res.status(500).send('Database connection not established');
-            return;
-        }
-
         const genres = req.params.genres.split(',').map(genre => genre.trim());
         const sql = 'SELECT * FROM quotes WHERE genre IN (?)';
         const [results] = await db.query(sql, [genres]);
@@ -157,11 +133,6 @@ app.get('/quotes/genre/:genres', async (req, res) => {
 app.get('/book_profiles/:id', async (req, res) => {
     console.log('Received request for /book-profiles/:id with ID:', req.params.id);
     try {
-        if (!db) {
-            res.status(500).send('Database connection not established');
-            return;
-        }
-
         const id = req.params.id;
         const [results] = await db.query(`
             SELECT b.title, b.author, bp.structured_description
@@ -186,6 +157,11 @@ app.use((req, res) => {
     res.status(404).send('Route not found');
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`App is running on port ${PORT}`);
+// Initialize database and start server
+initializeDatabase().then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`App is running on port ${PORT}`);
+    });
+}).catch(err => {
+    console.error('Failed to initialize the database:', err.message);
 });
