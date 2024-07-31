@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
-import bookProfilesRouter from './routes/book_profiles.routes.js';
+import bookProfilesRouter from './controllers/bookProfilesController.js'; 
 
 const app = express();
 
