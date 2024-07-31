@@ -1,6 +1,7 @@
 import express from 'express';
 import configuration from '../knexfile.js';
 import initKnex from 'knex'; 
+import { db } from '../server.js'; 
 
 const knex = initKnex(configuration);
 const router = express.Router();
