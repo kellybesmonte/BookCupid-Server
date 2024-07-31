@@ -166,7 +166,7 @@ app.get('/book_profiles/genre/:genres', async (req, res) => {
 
 // GET STRUCTURED BOOK DESCRIPTION
 app.get('/book_profiles/:id', async (req, res) => {
-    console.log('Received request for /book-profiles/:id with ID:', req.params.id);
+    console.log('Received request for /book_profiles/:id with ID:', req.params.id);
     try {
         const id = req.params.id;
         const [results] = await db.query(`

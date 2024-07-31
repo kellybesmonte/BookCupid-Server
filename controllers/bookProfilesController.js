@@ -10,9 +10,10 @@ router.get('/book_profiles/genre/:genres', async (req, res) => {
     try {
         const genres = req.params.genres.split(',').map(genre => genre.trim());
 
+        // Use JSON_CONTAINS to query JSON arrays in MySQL
         const results = await db('book_profiles as bp')
             .join('books as b', 'bp.book_id', 'b.id')
-            .whereIn('b.genre', genres)
+            .whereRaw('JSON_CONTAINS(b.genre, ?, "$")', [JSON.stringify(genres)])
             .select('bp.*', 'b.genre');
 
         if (results.length === 0) {
