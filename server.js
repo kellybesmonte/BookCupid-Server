@@ -2,18 +2,19 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
-import knex from 'knex';
+import bookProfilesRouter from './routes/book_profiles.routes.js';
 
 const app = express();
+
 const PORT = process.env.PORT || 8080;
 const CROSS_ORIGIN = process.env.CROSS_ORIGIN || 'http://localhost:5173';
 
-// Initialize database connection
 let db;
 
+// Initialize database connection
 async function initializeDatabase() {
     const maxRetries = 5;
-    const retryDelay = 2000; 
+    const retryDelay = 2000; // 2 seconds
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
@@ -39,23 +40,10 @@ async function initializeDatabase() {
                 password: password,
                 database: database,
                 port: port,
-                connectTimeout: 10000, 
+                connectTimeout: 10000, // 10 seconds timeout
             });
 
             console.log('Connected to the database');
-            
-            // Initialize Knex
-            global.knex = knex({
-                client: 'mysql2',
-                connection: {
-                    host: host,
-                    user: user,
-                    password: password,
-                    database: database,
-                    port: port,
-                },
-            });
-
             break; // Exit the loop if connection is successful
         } catch (err) {
             console.error(`Attempt ${attempt} - Error connecting to the database:`, err.message);
@@ -78,6 +66,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+app.use('/api', bookProfilesRouter);
 
 // Main route
 app.get('/', (req, res) => {
@@ -99,23 +88,6 @@ app.get('/books/:id', async (req, res) => {
     } catch (err) {
         console.error('Database query error:', err);
         res.status(500).send('Internal server error: ' + err.message);
-    }
-});
-
-// GET BOOK PROFILES BY GENRE
-app.get('/book_profiles/genre/:genre', async (req, res) => {
-    const { genre } = req.params;
-
-    try {
-        const results = await knex('book_profiles as bp')
-            .join('books as b', 'bp.book_id', 'b.id')
-            .whereRaw('JSON_CONTAINS(b.genre, JSON_QUOTE(?))', [genre])
-            .select('bp.*', 'b.genre');
-        
-        res.json(results);
-    } catch (error) {
-        console.error('Database query error:', error.message);
-        res.status(500).json({ error: error.message });
     }
 });
 
@@ -165,6 +137,25 @@ app.get('/quotes/genre/:genres', async (req, res) => {
             res.status(404).send('No quotes found for these genres');
         } else {
             res.json(results);
+        }
+    } catch (err) {
+        console.error('Database query error:', err);
+        res.status(500).send('Internal server error: ' + err.message);
+    }
+});
+
+//GET BOOK PROFILES
+app.get('/book_profiles/genre/:genres', async (req, res) => {
+    console.log('Received request for /book_profiles/genre/:genres with genres:', req.params.genres);
+    try {
+        const genres = req.params.genres.split(',').map(genre => genre.trim());
+        const sql = 'SELECT * FROM book_profiles WHERE genre IN (?)';
+        const results = await db.raw(sql, [genres]);
+
+        if (results.rows.length === 0) {
+            res.status(404).send('No book profiles found for these genres');
+        } else {
+            res.json(results.rows);
         }
     } catch (err) {
         console.error('Database query error:', err);
