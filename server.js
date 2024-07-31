@@ -12,35 +12,49 @@ let db;
 
 // Initialize database connection
 async function initializeDatabase() {
-    try {
-        const dbUrl = process.env.DATABASE_URL;
-        if (!dbUrl) {
-            throw new Error('DATABASE_URL is not set');
+    const maxRetries = 5;
+    const retryDelay = 2000; // 2 seconds
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const dbUrl = process.env.DATABASE_URL;
+            if (!dbUrl) {
+                throw new Error('DATABASE_URL is not set');
+            }
+
+            const params = new URL(dbUrl);
+
+            const user = params.username;
+            const password = params.password;
+            const database = params.pathname.slice(1);
+            const host = params.hostname;
+            const port = params.port || 3306;
+
+            console.log(`Connecting to database at ${host}:${port} as ${user}`);
+            console.log(`Database name: ${database}`);
+
+            db = await mysql.createConnection({
+                host: host,
+                user: user,
+                password: password,
+                database: database,
+                port: port,
+                connectTimeout: 10000, // 10 seconds timeout
+            });
+
+            console.log('Connected to the database');
+            break; // Exit the loop if connection is successful
+        } catch (err) {
+            console.error(`Attempt ${attempt} - Error connecting to the database:`, err.message);
+
+            if (attempt === maxRetries) {
+                console.error('Max retries reached. Exiting process.');
+                process.exit(1);  // Exit the process if database connection fails after max retries
+            }
+
+            console.log(`Retrying in ${retryDelay / 1000} seconds...`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
         }
-
-        const params = new URL(dbUrl);
-
-        const user = params.username;
-        const password = params.password;
-        const database = params.pathname.slice(1);
-        const host = params.hostname;
-        const port = params.port || 3306;
-
-        console.log(`Connecting to database at ${host}:${port} as ${user}`);
-        console.log(`Database name: ${database}`);
-
-        db = await mysql.createConnection({
-            host: host,
-            user: user,
-            password: password,
-            database: database,
-            port: port
-        });
-
-        console.log('Connected to the database');
-    } catch (err) {
-        console.error('Error connecting to the database:', err.message);
-        process.exit(1);  // Exit the process if database connection fails
     }
 }
 
