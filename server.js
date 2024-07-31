@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
-import bookProfilesRouter from './routes/book_profiles.routes.js';
+// import bookProfilesRouter from './routes/book_profiles.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -65,7 +65,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
-app.use('/api', bookProfilesRouter);
+// app.use('/api', bookProfilesRouter);
 
 // Main route
 app.get('/', (req, res) => {
@@ -134,6 +134,26 @@ app.get('/quotes/genre/:genres', async (req, res) => {
 
         if (results.length === 0) {
             res.status(404).send('No quotes found for these genres');
+        } else {
+            res.json(results);
+        }
+    } catch (err) {
+        console.error('Database query error:', err);
+        res.status(500).send('Internal server error: ' + err.message);
+    }
+});
+
+//GET BOOK PROFILES
+app.get('/book_profiles/genre/:genres', async (req, res) => {
+    console.log('Received request for /book_profiles/genre/:genres with genres:', req.params.genres);
+    try {
+        const genres = req.params.genres.split(',').map(genre => genre.trim());
+        const genreConditions = genres.map(() => 'genre = ?').join(' OR ');
+        const sql = `SELECT * FROM book_profiles WHERE ${genreConditions}`;
+        const [results] = await db.query(sql, genres);
+
+        if (results.length === 0) {
+            res.status(404).send('No book profiles found for these genres');
         } else {
             res.json(results);
         }
