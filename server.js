@@ -148,7 +148,13 @@ app.get('/book_profiles/genre/:genres', async (req, res) => {
     console.log('Received request for /book_profiles/genre/:genres with genres:', req.params.genres);
     try {
         const genres = req.params.genres.split(',').map(genre => genre.trim());
-        const sql = 'SELECT * FROM book_profiles WHERE genre IN (?)';
+
+        const sql = `
+            SELECT bp.*
+            FROM book_profiles bp
+            JOIN quotes q ON bp.book_id = q.book_id
+            WHERE q.genre IN (?)
+        `;
         const [results] = await db.query(sql, [genres]);
 
         if (results.length === 0) {
