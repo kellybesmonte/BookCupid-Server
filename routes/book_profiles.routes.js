@@ -1,8 +1,8 @@
 import express from 'express';
-// import knexConfig from '../knexfile.js'; 
-// import knex from 'knex';
-import db from '../db.js'; 
-// const db = knex(knexConfig); 
+import knexConfig from '../knexfile.js'; 
+import knex from 'knex';
+
+const db = knex(knexConfig); 
 const router = express.Router();
 
 router.get('/book_profiles/genre/:genres', async (req, res) => {
