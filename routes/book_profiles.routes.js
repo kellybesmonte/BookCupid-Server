@@ -24,5 +24,7 @@ router.get('/book_profiles/genre/:genre', async (req, res) => {
         res.status(500).json({ error: 'Internal server error', message: error.message });
     }
 });
+
 export default router;
+
 
