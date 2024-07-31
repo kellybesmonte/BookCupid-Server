@@ -160,7 +160,7 @@ app.get('/book_profiles/genre/:genre', async (req, res) => {
             JOIN book_profiles bp ON b.id = bp.book_id
             WHERE JSON_CONTAINS(b.genre, ?)`;
         
-        // Convert genre to JSON format if needed
+        // Convert genre to JSON format 
         const params = [JSON.stringify(genre)];
         
         const [results] = await db.query(sql, params);
@@ -176,27 +176,6 @@ app.get('/book_profiles/genre/:genre', async (req, res) => {
     }
 });
 
-///BOOK MATCH
-app.get('/book_profiles/:id', async (req, res) => {
-    console.log('Received request for /book_profiles/:id with ID:', req.params.id);
-    try {
-        const id = req.params.id;
-        const [results] = await db.query(`
-            SELECT b.title, b.author, bp.structured_description
-            FROM books b
-            JOIN book_profiles bp ON b.id = bp.book_id
-            WHERE b.id = ?`, [id]);
-
-        if (results.length === 0) {
-            res.status(404).send('No book profile found for this ID');
-        } else {
-            res.json(results[0]);
-        }
-    } catch (err) {
-        console.error('Database query error:', err);
-        res.status(500).send('Internal server error: ' + err.message);
-    }
-});
 
 // Catch-all for undefined routes
 app.use((req, res) => {
