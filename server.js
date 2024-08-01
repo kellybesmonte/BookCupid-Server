@@ -131,19 +131,19 @@ app.get('/book_profiles/genre/:genre', async (req, res) => {
     console.log('Received request for /book_profiles/genre/:genre with genre:', req.params.genre);
     try {
         const genre = req.params.genre;
-        
-        // Query to get book profiles by genre
+
         const sql = `
-            SELECT b.title, b.author, bp.structured_description
+            SELECT b.title, b.author, bp.book_id, bp.structured_description
             FROM books b
             JOIN book_profiles bp ON b.id = bp.book_id
             WHERE JSON_CONTAINS(b.genre, ?)`;
-        
-        // Convert genre to JSON format 
+
         const params = [JSON.stringify(genre)];
-        
+
         const [results] = await db.query(sql, params);
         
+        console.log('Query results:', results); 
+
         if (results.length === 0) {
             res.status(404).send('No book profiles found for this genre');
         } else {
@@ -154,6 +154,7 @@ app.get('/book_profiles/genre/:genre', async (req, res) => {
         res.status(500).send('Internal server error: ' + err.message);
     }
 });
+
 
 
 // Catch-all for undefined routes
