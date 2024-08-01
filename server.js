@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
-import bookProfilesRouter from './controllers/bookProfilesController.js'; 
+
 
 const app = express();
 
@@ -91,34 +91,6 @@ app.get('/books/:id', async (req, res) => {
     }
 });
 
-// GET BOOKS BY GENRE
-app.get('/book_profiles/genre/:genre', async (req, res) => {
-    console.log('Received request for /book_profiles/genre/:genre with genre:', req.params.genre);
-    try {
-        const genre = req.params.genre;
-
-        // Query to get book profiles by genre
-        const sql = `
-            SELECT b.title, b.author, bp.book_id, bp.structured_description
-            FROM books b
-            JOIN book_profiles bp ON b.id = bp.book_id
-            WHERE JSON_CONTAINS(b.genre, ?)`;
-
-        // Convert genre to JSON format
-        const params = [JSON.stringify(genre)];
-
-        const [results] = await db.query(sql, params);
-
-        if (results.length === 0) {
-            res.status(404).send('No book profiles found for this genre');
-        } else {
-            res.json(results);
-        }
-    } catch (err) {
-        console.error('Database query error:', err);
-        res.status(500).send('Internal server error: ' + err.message);
-    }
-});
 
 
 // GET ALL QUOTES
