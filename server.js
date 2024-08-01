@@ -92,18 +92,25 @@ app.get('/books/:id', async (req, res) => {
 });
 
 // GET BOOKS BY GENRE
-app.get('/books/genre/:genres', async (req, res) => {
-    console.log('Received request for /books/genre/:genres with genres:', req.params.genres);
+app.get('/book_profiles/genre/:genre', async (req, res) => {
+    console.log('Received request for /book_profiles/genre/:genre with genre:', req.params.genre);
     try {
-        const genres = req.params.genres.split(',').map(genre => genre.trim());
-        const genreConditions = genres.map(() => 'JSON_CONTAINS(genre, ?)').join(' OR ');
-        const sql = `SELECT * FROM books WHERE ${genreConditions}`;
-        const params = genres.map(genre => JSON.stringify(genre));
+        const genre = req.params.genre;
+
+        // Query to get book profiles by genre
+        const sql = `
+            SELECT b.title, b.author, bp.book_id, bp.structured_description
+            FROM books b
+            JOIN book_profiles bp ON b.id = bp.book_id
+            WHERE JSON_CONTAINS(b.genre, ?)`;
+
+        // Convert genre to JSON format
+        const params = [JSON.stringify(genre)];
 
         const [results] = await db.query(sql, params);
 
         if (results.length === 0) {
-            res.status(404).send('No books found for these genres');
+            res.status(404).send('No book profiles found for this genre');
         } else {
             res.json(results);
         }
@@ -112,6 +119,7 @@ app.get('/books/genre/:genres', async (req, res) => {
         res.status(500).send('Internal server error: ' + err.message);
     }
 });
+
 
 // GET ALL QUOTES
 app.get('/quotes', async (req, res) => {
