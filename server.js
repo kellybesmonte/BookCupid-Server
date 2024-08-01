@@ -92,18 +92,18 @@ app.get('/books/:id', async (req, res) => {
 });
 
 // GET BOOKS BY GENRE
-app.get('/book_profiles/genre/:genre', async (req, res) => {
-    console.log('Received request for /book_profiles/genre/:genre with genre:', req.params.genre);
+app.get('/books/genre/:genres', async (req, res) => {
+    console.log('Received request for /books/genre/:genres with genres:', req.params.genres);
     try {
-        const genre = req.params.genre;
-        const [results] = await db.query(`
-            SELECT b.title, b.author, bp.book_id, bp.structured_description
-            FROM books b
-            JOIN book_profiles bp ON b.id = bp.book_id
-            WHERE b.genre = ?`, [genre]);
+        const genres = req.params.genres.split(',').map(genre => genre.trim());
+        const genreConditions = genres.map(() => 'JSON_CONTAINS(genre, ?)').join(' OR ');
+        const sql = `SELECT * FROM books WHERE ${genreConditions}`;
+        const params = genres.map(genre => JSON.stringify(genre));
+
+        const [results] = await db.query(sql, params);
 
         if (results.length === 0) {
-            res.status(404).send('No book profiles found for this genre');
+            res.status(404).send('No books found for these genres');
         } else {
             res.json(results);
         }
