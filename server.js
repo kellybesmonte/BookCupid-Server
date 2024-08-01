@@ -155,6 +155,30 @@ app.get('/book_profiles/genre/:genre', async (req, res) => {
     }
 });
 
+// GET BOOKS BY GENRE
+app.get('/books/genre/:genres', async (req, res) => {
+    try {
+        if (!db) {
+            res.status(500).send('Database connection not established');
+            return;
+        }
+        const genres = req.params.genres.split(',').map(genre => genre.trim());
+        const genreConditions = genres.map(() => 'JSON_CONTAINS(genre, ?)').join(' OR ');
+        const sql = `SELECT * FROM books WHERE ${genreConditions}`;
+        const params = genres.map(genre => JSON.stringify(genre));
+
+        const [results] = await db.query(sql, params);
+
+        if (results.length === 0) {
+            res.status(404).send('No books found for these genres');
+        } else {
+            res.json(results);
+        }
+    } catch (err) {
+        console.error('Database query error:', err);
+        res.status(500).send('Internal server error: ' + err.message);
+    }
+});
 
 
 // Catch-all for undefined routes
