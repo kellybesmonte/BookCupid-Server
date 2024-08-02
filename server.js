@@ -3,7 +3,6 @@ import cors from 'cors';
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
 
-
 const app = express();
 
 const PORT = process.env.PORT || 8080;
@@ -40,17 +39,17 @@ async function initializeDatabase() {
                 password: password,
                 database: database,
                 port: port,
-                connectTimeout: 10000, // 10 seconds timeout
+                connectTimeout: 10000, 
             });
 
             console.log('Connected to the database');
-            break; // Exit the loop if connection is successful
+            break; 
         } catch (err) {
             console.error(`Attempt ${attempt} - Error connecting to the database:`, err.message);
 
             if (attempt === maxRetries) {
                 console.error('Max retries reached. Exiting process.');
-                process.exit(1);  // Exit the process if database connection fails after max retries
+                process.exit(1);
             }
 
             console.log(`Retrying in ${retryDelay / 1000} seconds...`);
@@ -61,7 +60,7 @@ async function initializeDatabase() {
 
 // Middleware
 app.use(cors({
-    origin: 'https://book-cupid.vercel.app',
+    origin: CROSS_ORIGIN,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -71,7 +70,6 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send('Book Cupid');
 });
-
 
 // Endpoint handlers
 app.get('/books/:id', async (req, res) => {
@@ -90,8 +88,6 @@ app.get('/books/:id', async (req, res) => {
         res.status(500).send('Internal server error: ' + err.message);
     }
 });
-
-
 
 // GET ALL QUOTES
 app.get('/quotes', async (req, res) => {
@@ -123,8 +119,6 @@ app.get('/quotes/genre/:genres', async (req, res) => {
         res.status(500).send('Internal server error: ' + err.message);
     }
 });
-
-
 
 // GET STRUCTURED BOOK DESCRIPTION
 app.get('/book_profiles/genre/:genre', async (req, res) => {
@@ -179,7 +173,6 @@ app.get('/books/genre/:genres', async (req, res) => {
         res.status(500).send('Internal server error: ' + err.message);
     }
 });
-
 
 // Catch-all for undefined routes
 app.use((req, res) => {
