@@ -9,5 +9,11 @@ export default {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     connectTimeout: 60000 
+  },
+  pool: {
+    min: 2, 
+    max: 10, 
+    acquireTimeoutMillis: 60000, 
+    idleTimeoutMillis: 30000 
   }
 };
