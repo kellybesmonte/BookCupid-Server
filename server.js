@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import cron from 'node-cron';
 import 'dotenv/config';
 import { knex } from './database.js';
 
@@ -112,6 +113,19 @@ app.get('/books/genre/:genres', async (req, res) => {
         res.status(500).send('Internal server error: ' + err.message);
     }
 });
+
+///RESTART SERVER LOGIC//
+cron.schedule('0 2 * * *', () => {
+    console.log('Restarting the service at 2 AM');
+    exec('pm2 restart all', (err, stdout, stderr) => {
+      if (err) {
+        console.error(`Error restarting service: ${err.message}`);
+        return;
+      }
+      console.log(`Service restart stdout: ${stdout}`);
+      console.error(`Service restart stderr: ${stderr}`);
+    });
+  });
 
 // Catch-all for undefined routes
 app.use((req, res) => {
