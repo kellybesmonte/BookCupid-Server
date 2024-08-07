@@ -1,5 +1,4 @@
 import express from 'express';
-import db from './database.js';
 import cors from 'cors';
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
@@ -7,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const CROSS_ORIGIN = process.env.CROSS_ORIGIN || 'http://localhost:5173';
 
-// let db;
+let db;
 
 // Initialize database connection
 async function initializeDatabase() {
