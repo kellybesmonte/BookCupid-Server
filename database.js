@@ -1,41 +1,22 @@
 import Knex from 'knex';
-import retry from 'async-retry';
-import knexConfig from './knexfile.js';
+import config from './knexfile.js';
 
+const knex = Knex(config);
 
-const knex = Knex(knexConfig);
-
-
-async function connectWithRetry() {
-  await retry(async () => {
+async function keepAlive() {
+  try {
     await knex.raw('SELECT 1');
-  }, {
-    retries: 5,
-    minTimeout: 1000,
-    onRetry: (err, attempt) => {
-      console.log(`Retrying connection attempt ${attempt} after error: ${err.message}`);
-    }
-  });
+    console.log('Keep-alive query successful');
+  } catch (error) {
+    console.error('Keep-alive query failed', error);
+  }
 }
 
 
-setInterval(() => {
-  knex.raw('SELECT 1').catch(err => console.error('Keep-alive query failed', err));
-}, 60000); 
+setInterval(keepAlive, 5 * 60 * 1000);
 
+const db = {
+  query: (sql, bindings) => knex.raw(sql, bindings),
+};
 
-connectWithRetry().catch(err => console.error('Failed to establish database connection', err));
-
-async function queryWithRetry(query) {
-  return retry(async () => {
-    return await knex.raw(query);
-  }, {
-    retries: 5,
-    minTimeout: 1000,
-    onRetry: (err, attempt) => {
-      console.log(`Retrying query attempt ${attempt} after error: ${err.message}`);
-    }
-  });
-}
-
-export { knex, queryWithRetry };
+export default db;

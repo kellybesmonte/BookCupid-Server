@@ -1,15 +1,18 @@
 import express from 'express';
+import db from './database.js';
 import cors from 'cors';
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
 const app = express();
 const PORT = process.env.PORT || 8080;
 const CROSS_ORIGIN = process.env.CROSS_ORIGIN || 'http://localhost:5173';
-let db;
+
+// let db;
+
 // Initialize database connection
 async function initializeDatabase() {
     const maxRetries = 5;
-    const retryDelay = 2000; // 2 seconds
+    const retryDelay = 2000; 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
             const dbUrl = process.env.DATABASE_URL;
@@ -30,15 +33,15 @@ async function initializeDatabase() {
                 password: password,
                 database: database,
                 port: port,
-                connectTimeout: 10000, // 10 seconds timeout
+                connectTimeout: 10000, 
             });
             console.log('Connected to the database');
-            break; // Exit the loop if connection is successful
+            break;
         } catch (err) {
             console.error(`Attempt ${attempt} - Error connecting to the database:`, err.message);
             if (attempt === maxRetries) {
                 console.error('Max retries reached. Exiting process.');
-                process.exit(1);  // Exit the process if database connection fails after max retries
+                process.exit(1);  
             }
             console.log(`Retrying in ${retryDelay / 1000} seconds...`);
             await new Promise(resolve => setTimeout(resolve, retryDelay));
